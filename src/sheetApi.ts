@@ -32,3 +32,14 @@ export async function saveLinkRemote(link: Omit<WebsiteLink, 'id' | 'createdAt'>
 
   return payload;
 }
+
+export async function deleteRemote(id: string) {
+  const url = `${BASE}?secret=${encodeURIComponent(SECRET)}&action=delete`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error('Delete failed');
+  return true;
+}
