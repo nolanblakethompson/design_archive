@@ -1,31 +1,30 @@
-// /api/proxy.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const targetUrl = req.query.url;
-
-  if (!targetUrl || typeof targetUrl !== 'string') {
-    return res.status(400).json({ error: 'Missing ?url=' });
+export default async function handler(req, res) {
+  const target = req.query.url;
+  if (!target) {
+    return res.status(400).json({ error: 'Missing url param' });
   }
 
   try {
-    const response = await fetch(targetUrl, {
+    const fetchOptions: { method: string; headers: { 'Content-Type': string }; body?: string } = {
       method: req.method,
-      headers: {
-        'Content-Type': req.headers['content-type'] || 'application/json',
-      },
-      body: req.method === 'POST' ? req.body : undefined,
-    });
+      headers: { 'Content-Type': 'application/json' },
+    };
 
+    if (req.method === 'POST') {
+      // 🔥 FIX: Make sure body is sent as a JSON string
+      fetchOptions.body = JSON.stringify(req.body);
+    }
+
+    const response = await fetch(target, fetchOptions);
+
+    // Apps Script returns text, not JSON — so we read as text
     const text = await response.text();
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
     res.status(response.status).send(text);
-  } catch (err: any) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
