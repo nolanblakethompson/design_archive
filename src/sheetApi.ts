@@ -15,23 +15,20 @@ export async function saveLinkRemote(link: Omit<WebsiteLink, 'id' | 'createdAt'>
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
+
   const res = await fetch(`${BASE}?secret=${encodeURIComponent(SECRET)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    redirect: 'follow',
   });
-  if (!res.ok) throw new Error('Save failed');
-  return payload; // return what we appended
-}
 
-// OPTIONAL: hook up delete to Apps Script’s doPostDelete
-export async function deleteRemote(id: string) {
-  const url = `${BASE.replace('/exec', '/exec')}/doPostDelete`; // same base; Apps Script routes by function name
-  const res = await fetch(`${url}?secret=${encodeURIComponent(SECRET)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id }),
-  });
-  if (!res.ok) throw new Error('Delete failed');
-  return true;
+  const text = await res.text();
+  console.log('Response text:', text);
+
+  if (!res.ok || !text.includes('OK')) {
+    throw new Error('Save failed: ' + text);
+  }
+
+  return payload;
 }
