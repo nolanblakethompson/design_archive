@@ -2,7 +2,7 @@ import { WebsiteLink } from './types';
 
 // 👇 point to your deployed proxy
 const PROXY = 'https://design-archive.vercel.app/api/proxy';
-const SCRIPT_URL = 'https://script.google.com/a/macros/bu.edu/s/AKfycbwE7hjv7iiYuLhchKTNhIWFO__qMFl7ssJ1s1uhaD0ZviYyj-XtbnbCsPQmtRFULbrG/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwE7hjv7iiYuLhchKTNhIWFO__qMFl7ssJ1s1uhaD0ZviYyj-XtbnbCsPQmtRFULbrG/exec';
 
 export const BASE = `${PROXY}?url=${encodeURIComponent(SCRIPT_URL)}`;
 export const SECRET = 'change-me';
