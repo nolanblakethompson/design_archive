@@ -1,11 +1,12 @@
 import { WebsiteLink } from './types';
 
-// 👇 point to your deployed proxy
+// 👇 your deployed proxy + Google Apps Script web app
 const PROXY = 'https://design-archive.vercel.app/api/proxy';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwE7hjv7iiYuLhchKTNhIWFO__qMFl7ssJ1s1uhaD0ZviYyj-XtbnbCsPQmtRFULbrG/exec';
+const SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbwE7hjv7iiYuLhchKTNhIWFO__qMFl7ssJ1s1uhaD0ZviYyj-XtbnbCsPQmtRFULbrG/exec';
 export const SECRET = 'change-me';
 
-// Helper to wrap URL through the proxy
+// helper to wrap requests through proxy
 function proxied(url: string) {
   return `${PROXY}?url=${encodeURIComponent(url)}`;
 }
@@ -18,16 +19,16 @@ export async function fetchLinks(): Promise<WebsiteLink[]> {
 }
 
 // --- SAVE LINK ---
-export async function saveLinkRemote(link: Omit<WebsiteLink, 'id' | 'createdAt'>) {
+export async function saveLinkRemote(
+  link: Omit<WebsiteLink, 'id' | 'createdAt'>
+) {
   const payload: WebsiteLink = {
     ...link,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
 
-  // Construct the *real* Apps Script URL first, THEN proxy it
   const targetUrl = `${SCRIPT_URL}?secret=${SECRET}`;
-
   const res = await fetch(proxied(targetUrl), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -37,7 +38,16 @@ export async function saveLinkRemote(link: Omit<WebsiteLink, 'id' | 'createdAt'>
   const text = await res.text();
   console.log('Response text:', text);
 
-  if (!res.ok || !text.includes('OK')) {
+  // Handle both JSON ({ ok: true }) and plain "OK"
+  let ok = false;
+  try {
+    const json = JSON.parse(text);
+    ok = json.ok === true;
+  } catch {
+    ok = text.includes('OK');
+  }
+
+  if (!res.ok || !ok) {
     throw new Error('Save failed: ' + text);
   }
 
@@ -47,13 +57,11 @@ export async function saveLinkRemote(link: Omit<WebsiteLink, 'id' | 'createdAt'>
 // --- DELETE LINK ---
 export async function deleteRemote(id: string) {
   const targetUrl = `${SCRIPT_URL}?secret=${SECRET}&action=delete`;
-
   const res = await fetch(proxied(targetUrl), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id }),
   });
-
   if (!res.ok) throw new Error('Delete failed');
   return true;
 }
