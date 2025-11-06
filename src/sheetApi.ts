@@ -1,7 +1,12 @@
 import { WebsiteLink } from './types';
 
-export const BASE = 'https://script.google.com/macros/s/AKfycbwE7hjv7iiYuLhchKTNhIWFO__qMFl7ssJ1s1uhaD0ZviYyj-XtbnbCsPQmtRFULbrG/exec'; // <-- paste your Web app URL
-export const SECRET = 'change-me'; // <-- must match Apps Script SECRET
+// 👇 point to your deployed proxy
+const PROXY = 'https://design-archive.vercel.app/api/proxy';
+const SCRIPT_URL = 'https://script.google.com/a/macros/bu.edu/s/AKfycbwE7hjv7iiYuLhchKTNhIWFO__qMFl7ssJ1s1uhaD0ZviYyj-XtbnbCsPQmtRFULbrG/exec';
+
+export const BASE = `${PROXY}?url=${encodeURIComponent(SCRIPT_URL)}`;
+export const SECRET = 'change-me';
+ 
 
 export async function fetchLinks(): Promise<WebsiteLink[]> {
   const res = await fetch(BASE);
