@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
@@ -7,7 +5,7 @@ import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { Plus, Upload, X } from 'lucide-react';
+import { Plus, ChevronDown, Upload, X } from 'lucide-react';
 import { WebsiteLink } from '../App';
 import React from 'react';
 
